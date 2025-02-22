@@ -1,7 +1,7 @@
 import React from "react";
-import { View, Text, Button, Dimensions } from "react-native";
+import { View, Text, Dimensions } from "react-native";
 import { LineChart } from "react-native-chart-kit";
-import { useNavigation } from "@react-navigation/native";
+import CustomButton from "./CustomButton";
 
 const data = [
   { time: "08:00", temperature: 98.6 },
@@ -12,8 +12,6 @@ const data = [
 ];
 
 function PatientStatsComp() {
-  const navigation = useNavigation();
-
   const chartData = {
     labels: data.map((item) => item.time),
     datasets: [
@@ -51,15 +49,6 @@ function PatientStatsComp() {
           },
         }}
         bezier
-      />
-      <Button
-        title="Log out"
-        onPress={() =>
-          navigation.reset({
-            index: 0,
-            routes: [{ name: "Login" }],
-          })
-        }
       />
     </View>
   );

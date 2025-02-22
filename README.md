@@ -15,12 +15,11 @@ web app:
 
 android app:
 
-1. expo init [app name]
-2. when prompted for framework, select blank (TypeScript)
-3. cd [app name]
-4. cp [dir for React/android_app/*] .
-5. npm install react-native-chart-kit
-6. npm install @react-navigation/native
-7. npm install react-native-screens react-native-safe-area-context
-8. npm install @react-navigation/stack
-9. npm start
+1. npx create-expo-app [app name] --template blank-typescript
+2. cd [app name]
+3. cp [dir for React/android_app/*] .
+4. npm install react-native-chart-kit
+5. npm install @react-navigation/native
+6. npm install react-native-screens react-native-safe-area-context
+7. npm install @react-navigation/stack
+8. npx expo start

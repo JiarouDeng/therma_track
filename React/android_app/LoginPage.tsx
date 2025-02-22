@@ -7,18 +7,16 @@ import utilsFuncs from "./utils";
 function LoginPage() {
   const navigation = useNavigation();
 
-  //const handleLoginSubmit = (username, password) => {
-  //  if (username === "doctor") navigation.navigate("Doctor");
-  //  else if (password) navigation.navigate("Patient");
-  //};
-
   return (
     <View style={styles.container}>
       <LoginComp
         nameClass="username"
         auxClass="password"
         buttonText="Login"
-        onLoginSubmit={() => navigation.navigate("Doctor")}
+        onLoginSubmit={(name, password) => {
+          if (name == "doctor") navigation.navigate("Doctor");
+          else if (password) navigation.navigate("Patient");
+        }}
         onAuxChecker={utilsFuncs.parseUserNameAndPassword}
       />
       <TouchableOpacity
