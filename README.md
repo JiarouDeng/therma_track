@@ -23,3 +23,11 @@ android app:
 6. npm install react-native-screens react-native-safe-area-context
 7. npm install @react-navigation/stack
 8. npx expo start
+
+node.js backend
+
+1. cd node_sever
+2. npm init
+3. add in package.json "scripts" session: "start": "node index.js"
+4. npm install body-parser cors express
+5. npm start
