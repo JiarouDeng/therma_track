@@ -16,7 +16,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route path="/patient" element={<PatientPage />} />
+        <Route path="/patient/:id" element={<PatientPage />} />
         <Route path="/doctor" element={<DoctorPage />} />
 
         {/* Default Route: Any undefined route will navigate to /home */}
