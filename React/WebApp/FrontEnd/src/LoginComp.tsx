@@ -4,8 +4,8 @@ interface props {
   nameClass: string;
   auxClass: string;
   buttonText: string;
-  onLoginSubmit: (identifier: string) => void;
-  onAuxChecker: (name: string, aux: string) => Promise<[boolean, string]>;
+  onLoginSubmit: (username: string, password: string) => void;
+  onAuxChecker: (aux: string) => [boolean, string];
 }
 
 function LoginComp({
@@ -47,14 +47,14 @@ function LoginComp({
       )}
       <button
         className="spaced"
-        onClick={async () => {
+        onClick={() => {
           if (!name || !aux) {
             setError("Incomplete information");
             return;
           }
-          const [result, errorMsg] = await onAuxChecker(name, aux);
+          const [result, errorMsg] = onAuxChecker(aux);
           setError(errorMsg);
-          if (result) onLoginSubmit(errorMsg);
+          if (result) onLoginSubmit(name, aux);
         }}
       >
         {buttonText}

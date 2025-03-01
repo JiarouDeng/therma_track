@@ -7,20 +7,18 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
-import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+const data = [
+  { time: "08:00", temperature: 98.6 },
+  { time: "10:00", temperature: 99.1 },
+  { time: "12:00", temperature: 99.5 },
+  { time: "14:00", temperature: 100.2 },
+  { time: "16:00", temperature: 101.0 },
+];
 
 function PatientStatsComp() {
-  const [data, setData] = useState([]);
-
-  useEffect(() => {
-    fetch("http://localhost:4000/temperature")
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
-
+  const navigate = useNavigate();
   return (
     <div>
       <h2>Patient Temperature Over Time</h2>
@@ -42,6 +40,9 @@ function PatientStatsComp() {
           />
         </LineChart>
       </ResponsiveContainer>
+      <button className="spaced" onClick={() => navigate("/")}>
+        Log out
+      </button>
     </div>
   );
 }

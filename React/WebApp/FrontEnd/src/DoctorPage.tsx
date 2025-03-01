@@ -1,23 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import LoginComp from "./LoginComp";
 import utilsFuncs from "./utils";
 import PopupComp from "./PopupComp";
 import { useNavigate } from "react-router-dom";
 
+const patients = [
+  { id: 1, name: "Alice Johnson", age: 30, condition: "Flu" },
+  { id: 2, name: "Bob Smith", age: 45, condition: "Diabetes" },
+  { id: 3, name: "Charlie Brown", age: 60, condition: "Hypertension" },
+];
+
 function DoctorPage() {
   const [connectPatient, setConnectPatient] = useState(false);
   const [checkPatient, setCheckPatient] = useState(false);
-  const [patients, setPatients] = useState([{ id: "N/A", name: "N/A" }]);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetch("http://localhost:4000/patients")
-      .then((res) => res.json())
-      .then((data) => {
-        setPatients(data);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
 
   return (
     <div
@@ -68,14 +64,7 @@ function DoctorPage() {
                   key={patient.id}
                   className="p-3 border rounded-lg bg-gray-100"
                 >
-                  <button
-                    className="font-semibold"
-                    onClick={() => {
-                      navigate(`/patient/${patient.id}`);
-                    }}
-                  >
-                    {patient.name}
-                  </button>
+                  <button className="font-semibold">{patient.name}</button>
                 </li>
               ))}
             </ul>
