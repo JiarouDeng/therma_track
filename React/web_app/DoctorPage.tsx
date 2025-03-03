@@ -1,23 +1,32 @@
 import { useState, useEffect } from "react";
-import LoginComp from "./LoginComp";
 import utilsFuncs from "./utils";
 import PopupComp from "./PopupComp";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 
 function DoctorPage() {
+  const { id } = useParams();
+
   const [connectPatient, setConnectPatient] = useState(false);
   const [checkPatient, setCheckPatient] = useState(false);
-  const [patients, setPatients] = useState([{ id: "N/A", name: "N/A" }]);
+  const [patientId, setPatientId] = useState("");
+  const [patients, setPatients] = useState([]);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetch("http://localhost:4000/patients")
-      .then((res) => res.json())
-      .then((data) => {
-        setPatients(data);
+  const updatePatientList = () => {
+    axios
+      .get(`http://localhost:4000/doctor/check_patient/${id}`)
+      .then((res) => {
+        setPatients(res.data);
       })
       .catch((error) => console.error("Error fetching data:", error));
-  }, []);
+  };
+
+  useEffect(() => {
+    updatePatientList();
+  });
 
   return (
     <div
@@ -46,15 +55,43 @@ function DoctorPage() {
       </div>
       {connectPatient && (
         <PopupComp
-          onClose={() => setConnectPatient(false)}
+          onClose={() => {
+            setConnectPatient(false);
+            setMessage("");
+            setError("");
+            setPatientId("");
+          }}
           children={
-            <LoginComp
-              nameClass="patient id"
-              auxClass="DOB"
-              buttonText="Connect"
-              onLoginSubmit={() => {}}
-              onAuxChecker={utilsFuncs.parseDateofBirth}
-            />
+            <div className="spaced">
+              <label>patient id : </label>
+              <input
+                value={patientId}
+                onChange={(e) => {
+                  setPatientId(e.target.value);
+                }}
+              />
+              {error && <p style={{ color: "red" }}>{error}</p>}
+              {message && <p style={{ color: "green" }}>{message}</p>}
+              <button
+                className="spaced"
+                onClick={async () => {
+                  const [result, errorMsg] =
+                    await utilsFuncs.parseConnectPatient(
+                      id ? id : "",
+                      patientId
+                    );
+                  if (!result) setError(errorMsg);
+                  else {
+                    setMessage(
+                      `successfully connected to patient ${patientId}`
+                    );
+                    updatePatientList();
+                  }
+                }}
+              >
+                Connect
+              </button>
+            </div>
           }
         />
       )}
@@ -63,18 +100,18 @@ function DoctorPage() {
           onClose={() => setCheckPatient(false)}
           children={
             <ul className="space-y-2">
-              {patients.map((patient) => (
+              {patients.map((patient: { patient_id: number }) => (
                 <li
-                  key={patient.id}
+                  key={patient.patient_id}
                   className="p-3 border rounded-lg bg-gray-100"
                 >
                   <button
                     className="font-semibold"
                     onClick={() => {
-                      navigate(`/patient/${patient.id}`);
+                      navigate(`/patient/d${id}/${patient.patient_id}`);
                     }}
                   >
-                    {patient.name}
+                    patient {patient.patient_id}
                   </button>
                 </li>
               ))}

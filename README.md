@@ -10,7 +10,7 @@ web app:
 4. cd [app name]
 5. npm install
 6. cp [dir for React/web_app/*] src/
-7. npm install react-router-dom recharts (router is used for navigating between different pages, recharts is used for char display)
+7. npm install react-router-dom recharts axios date-fns (router is used for navigating between different pages, recharts is used for char display)
 8. npm run dev
 
 android app:
@@ -29,5 +29,5 @@ node.js backend
 1. cd node_sever
 2. npm init
 3. add in package.json "scripts" session: "start": "node index.js"
-4. npm install body-parser cors express
+4. npm install body-parser cors express sqlite3
 5. npm start

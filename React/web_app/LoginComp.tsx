@@ -21,20 +21,24 @@ function LoginComp({
 
   return (
     <div>
-      <div className="spaced">
-        <label>{nameClass}: </label>
-        <input value={name} onChange={(e) => setName(e.target.value)} />
-      </div>
-      <div className="spaced">
-        <label>{auxClass}: </label>
-        <input
-          type={auxClass === "password" ? "password" : ""}
-          value={aux}
-          onChange={(e) => {
-            setAux(e.target.value);
-          }}
-        />
-      </div>
+      {nameClass && (
+        <div className="spaced">
+          <label>{nameClass}: </label>
+          <input value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+      )}
+      {auxClass && (
+        <div className="spaced">
+          <label>{auxClass}: </label>
+          <input
+            type={auxClass === "password" ? "password" : ""}
+            value={aux}
+            onChange={(e) => {
+              setAux(e.target.value);
+            }}
+          />
+        </div>
+      )}
       {error && (
         <p
           className="spaced"
@@ -48,13 +52,13 @@ function LoginComp({
       <button
         className="spaced"
         onClick={async () => {
-          if (!name || !aux) {
+          if ((!nameClass && !name) || (!auxClass && !aux)) {
             setError("Incomplete information");
             return;
           }
           const [result, errorMsg] = await onAuxChecker(name, aux);
-          setError(errorMsg);
-          if (result) onLoginSubmit(errorMsg);
+          if (!result) setError(errorMsg);
+          else onLoginSubmit(errorMsg);
         }}
       >
         {buttonText}

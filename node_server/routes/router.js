@@ -1,67 +1,155 @@
 const express = require("express");
+const sqlite3 = require("sqlite3").verbose();
 
 const router = express.Router();
+const db = new sqlite3.Database("node_database.db");
 
-router.get("/temperature", (req, res) => {
-  const temp_data = [
-    { time: "08:00", temperature: 98.6 },
-    { time: "10:00", temperature: 99.1 },
-    { time: "12:00", temperature: 99.5 },
-    { time: "14:00", temperature: 100.2 },
-    { time: "16:00", temperature: 101.0 },
-  ];
-  res.json(temp_data);
+router.get("/temperature/:patient_id", (req, res) => {
+  const patient_id = req.params.patient_id;
+  db.all(
+    "SELECT timestamp, temp_data FROM Temperature WHERE patient_id = ?",
+    [patient_id],
+    (err, user) => {
+      if (err) return res.json({ message: "Database error" });
+      else return res.json(user);
+    }
+  );
 });
 
-router.get("/userinfo/:username", (req, res) => {
-  const user_data = {
-    bella: ["@Sleepingb2019", "p"],
-    doctor: ["@Sleepingb2020", "d"],
-  };
+router.post("/login/patient", (req, res) => {
+  const { username, password } = req.body;
 
-  router.post("/userinfo", (req, res) => {
-    const { username, password, identifier } = req.body;
-    console.log(username + " | " + password + " | " + identifier);
-    res.json({
-      message: `Successfully registered user ${username} as ${
-        identifier === "p" ? "patient" : "doctor"
-      }. Welcome!`,
-      status: "success",
-    });
-  });
+  if (username == "" || password === "") {
+    return res.json({ message: "Username and password are required" });
+  }
 
-  const username = req.params.username;
+  db.get(
+    "SELECT * FROM Patients WHERE username = ?",
+    [username],
+    (err, user) => {
+      if (err) return res.json({ message: "Database error" });
 
-  res.json({
-    username,
-    data: user_data[username] || [], // Returns an empty array if the user isn't found
-  });
+      if (user === undefined || password !== user.user_password)
+        return res.json({ message: "Invalid username or password" });
+
+      db.run(
+        "UPDATE Patients SET last_login = CURRENT_TIMESTAMP WHERE patient_id = ?",
+        [user.patient_id],
+        function (err) {
+          if (err) console.error("Error updating last_login:", err);
+        }
+      );
+      return res.json({ message: null, id: user.patient_id });
+    }
+  );
 });
 
-router.get("/patients", (req, res) => {
-  const patients = [
-    { id: 1, name: "a", dob: "01/02/2003" },
-    { id: 2, name: "b", dob: "01/02/2003" },
-    { id: 3, name: "c", dob: "01/02/2003" },
-  ];
-  res.json(patients);
+router.post("/login/doctor", (req, res) => {
+  const { username, password } = req.body;
+
+  if (username == "" || password === "") {
+    return res.json({ message: "Username and password are required" });
+  }
+
+  db.get(
+    "SELECT * FROM Doctors WHERE user_password = ?",
+    [password],
+    (err, user) => {
+      if (err) return res.json({ message: "Database error" });
+
+      if (user === undefined || password !== user.user_password)
+        return res.json({ message: "Invalid username or password" });
+
+      db.run(
+        "UPDATE Doctors SET last_login = CURRENT_TIMESTAMP WHERE doctor_id = ?",
+        [user.doctor_id],
+        function (err) {
+          if (err) console.error("Error updating last_login:", err);
+        }
+      );
+      return res.json({ message: null, id: user.doctor_id });
+    }
+  );
 });
 
-router.get("/patients/:patientid", (req, res) => {
-  const patients = {
-    1: { name: "a", dob: "01/02/2003" },
-    2: { name: "b", dob: "01/02/2003" },
-    3: {
-      name: "c",
-      dob: "01/02/2003",
-    },
-  };
+router.post("/signup/patient", (req, res) => {
+  const { username, password } = req.body;
+  if (username === "" || password === "")
+    return res.json({ message: "Username and password are required" });
 
-  const patientid = req.params.patientid;
-  res.json({
-    patientid,
-    data: patients[patientid] || {}, // Returns an empty array if the user isn't found
-  });
+  db.run(
+    "INSERT INTO Patients (username, user_password, last_login) VALUES (?, ?, CURRENT_TIMESTAMP)",
+    [username, password],
+    (err) => {
+      if (err)
+        return res.json({
+          message: "Fail to sign up. Please choose a different username.",
+        });
+      db.get(
+        "SELECT * FROM Patients WHERE username = ?",
+        [username],
+        (err, user) => {
+          if (err)
+            return res.json({ message: "Error retrieving inserted row" });
+          else return res.json({ message: null, id: user.patient_id });
+        }
+      );
+    }
+  );
+});
+
+router.post("/signup/doctor", (req, res) => {
+  const { username, password } = req.body;
+
+  if (username === "" || password === "")
+    return res.json({ message: "Username and password are required" });
+
+  db.run(
+    "INSERT INTO Doctors (user_password, last_login) VALUES (?, CURRENT_TIMESTAMP)",
+    [password],
+    (err) => {
+      if (err)
+        return res.json({
+          message: "Fail to sign up. Please choose a different username.",
+        });
+      db.get(
+        "SELECT * FROM Doctors WHERE user_password = ?",
+        [password],
+        (err, user) => {
+          if (err)
+            return res.json({ message: "Error retrieving inserted row" });
+          else return res.json({ message: null, id: user.doctor_id });
+        }
+      );
+    }
+  );
+});
+
+router.get("/doctor/check_patient/:doctor_id", (req, res) => {
+  const doctor_id = req.params.doctor_id;
+  db.all(
+    "SELECT patient_id FROM DoctorPatients WHERE doctor_id = ?",
+    [doctor_id],
+    (err, user) => {
+      if (err) return res.json({ message: "Error retrieving inserted row" });
+      else return res.json(user);
+    }
+  );
+});
+
+router.post("/doctor/connect_patient", (req, res) => {
+  const { doctor_id, patient_id } = req.body;
+  db.run(
+    "INSERT INTO DoctorPatients (patient_id, doctor_id) VALUES (?, ?)",
+    [patient_id, doctor_id],
+    (err) => {
+      if (err)
+        return res.json({
+          message: "Error: unable to connect to specified patient",
+        });
+      else return res.json({ message: null });
+    }
+  );
 });
 
 module.exports = router;

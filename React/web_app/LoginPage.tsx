@@ -4,6 +4,7 @@ import utilsFuncs from "./utils";
 
 function LoginPage() {
   const navigate = useNavigate();
+
   return (
     <div
       className="fixed-center"
@@ -14,8 +15,7 @@ function LoginPage() {
         auxClass="password"
         buttonText="Login"
         onLoginSubmit={(identifier) => {
-          if (identifier === "d") navigate("/doctor");
-          else if (identifier === "p") navigate(`/patient/0`);
+          navigate(`/${identifier}`);
         }}
         onAuxChecker={utilsFuncs.handleLogin}
       />

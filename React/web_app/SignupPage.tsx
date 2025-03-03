@@ -16,10 +16,9 @@ function SignupPage() {
         auxClass="password"
         buttonText="Signup"
         onLoginSubmit={(identifier) => {
-          if (identifier === "d") navigate("/doctor");
-          else if (identifier === "p") navigate(`/patient/0`);
+          navigate(`/${identifier}`);
         }}
-        onAuxChecker={utilsFuncs.parseUserNameAndPassword}
+        onAuxChecker={utilsFuncs.handleSignup}
       />
       <p
         className="spaced"
