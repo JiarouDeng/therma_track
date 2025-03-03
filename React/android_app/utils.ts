@@ -1,32 +1,78 @@
-const regex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_]).+$/;
+import axios from "axios";
 
-const parseUserNameAndPassword = (password: string): [boolean, string] => {
-  if (password.length < 10)
-    return [false, "password needs to be longer than 10 characters."];
-  else if (regex.test(password) === false)
-    return [
-      false,
-      "password must be a combination of letters, digits, and at least one special character.",
-    ];
-  return [true, ""];
+const handleLogin = async (
+  username: string,
+  password: string
+): Promise<[boolean, string, object]> => {
+  let response;
+  try {
+    if (username === "doctor")
+      response = await axios.post("http://192.168.1.11:4000/login/doctor", {
+        username,
+        password,
+      });
+    else
+      response = await axios.post("http://192.168.1.11:4000/login/patient", {
+        username,
+        password,
+      });
+
+    // 根据响应结果导航到不同页面
+    if (response.data.message === null) {
+      return [
+        true,
+        username === "doctor" ? "Doctor" : "Patient",
+        { id: response.data.id, status: "p" },
+      ];
+    } else return [false, "Login failed: " + response.data.message, {}];
+  } catch (error) {
+    alert("Login failed. Please try again.");
+    return [false, "Log in failed. Error message: " + error, {}];
+  }
 };
 
-const parseDateofBirth = (dob: string): [boolean, string] => {
-  // date of birth should be of format mm/dd/yyyy
-  const datePattern = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
-  if (!datePattern.test(dob))
-    return [false, "Invalid date format. Use mm/dd/yyyy"];
+const handleSignup = async (
+  username: string,
+  password: string
+): Promise<[boolean, string, object]> => {
+  let response;
+  try {
+    if (username === "doctor")
+      response = await axios.post("http://192.168.1.11:4000/signup/doctor", {
+        username,
+        password,
+      });
+    else
+      response = await axios.post("http://192.168.1.11:4000/signup/patient", {
+        username,
+        password,
+      });
+    if (response.data.message === null) {
+      return [
+        true,
+        username === "doctor" ? "Doctor" : "Patient",
+        { id: response.data.id, status: "p" },
+      ];
+    } else return [false, "Signup failed: " + response.data.message, {}];
+  } catch (error) {
+    alert("Signup failed. Please try again.");
+    return [false, "Signup failed. Error message: " + error, {}];
+  }
+};
 
-  // Split into components
-  const [month, day, year] = dob.split("/").map(Number);
-
+const parseConnectPatient = async (
+  doctor_id: string,
+  patient_id: string
+): Promise<[boolean, string]> => {
   // Check for valid month, day, year
-  if (month < 1 || month > 12) return [false, "Invalid month"];
-  if (day < 1 || day > 31) return [false, "Invalid day"];
-  if (year < 1900 || year > new Date().getFullYear())
-    return [false, "Invalid year"];
 
-  return [true, "Valid date"];
+  const response = await axios.post(
+    "http://192.168.1.11:4000/doctor/connect_patient/",
+    { doctor_id, patient_id }
+  );
+  return response.data.message === null
+    ? [true, ""]
+    : [false, response.data.message];
 };
 
-export default { parseUserNameAndPassword, parseDateofBirth };
+export default { handleLogin, handleSignup, parseConnectPatient };

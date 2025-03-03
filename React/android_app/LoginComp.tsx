@@ -1,19 +1,16 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { View, Text, TextInput, StyleSheet } from "react-native";
 import CustomButton from "./CustomButton";
 
 interface Props {
   nameClass: string;
   auxClass: string;
   buttonText: string;
-  onLoginSubmit: (username: string, password: string) => void;
-  onAuxChecker: (aux: string) => [boolean, string];
+  onLoginSubmit: (identifier: string, aux: object) => void;
+  onAuxChecker: (
+    name: string,
+    aux: string
+  ) => Promise<[boolean, string, object]>;
 }
 
 function LoginComp({
@@ -44,14 +41,14 @@ function LoginComp({
       </View>
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
       <CustomButton
-        onPress={() => {
+        onPress={async () => {
           if (!name || !aux) {
             setError("Incomplete information");
             return;
           }
-          const [result, errorMsg] = onAuxChecker(aux);
-          setError(errorMsg);
-          if (result) onLoginSubmit(name, aux);
+          const [result, errorMsg, aux_data] = await onAuxChecker(name, aux);
+          if (!result) setError(errorMsg);
+          else onLoginSubmit(errorMsg, aux_data);
         }}
         title={buttonText}
         color="green"

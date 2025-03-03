@@ -18,11 +18,10 @@ android app:
 1. npx create-expo-app [app name] --template blank-typescript
 2. cd [app name]
 3. cp [dir for React/android_app/*] .
-4. npm install react-native-chart-kit
-5. npm install @react-navigation/native
-6. npm install react-native-screens react-native-safe-area-context
-7. npm install @react-navigation/stack
-8. npx expo start
+4. npm install react-native-chart-kit axios @react-navigation/stack @react-navigation/native
+5. npm install react-native-screens react-native-safe-area-context
+6. **IMPORTANT** Before starting, use "ipconfig" command to check the laptop networks's currently assigned ip address and change all data query to that. Otherwise the Expo Go app would not be able to fetch the data!!
+7. npx expo start
 
 node.js backend
 

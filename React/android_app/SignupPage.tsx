@@ -13,11 +13,10 @@ function SignupPage() {
         nameClass="username"
         auxClass="password"
         buttonText="Signup"
-        onLoginSubmit={(name, password) => {
-          if (name == "doctor") navigation.navigate("Doctor");
-          else if (password) navigation.navigate("Patient");
-        }}
-        onAuxChecker={utilsFuncs.parseUserNameAndPassword}
+        onLoginSubmit={(identifier, aux) =>
+          navigation.navigate(identifier, aux)
+        }
+        onAuxChecker={utilsFuncs.handleSignup}
       />
       <TouchableOpacity
         onPress={() =>
