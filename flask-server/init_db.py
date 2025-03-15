@@ -1,5 +1,4 @@
-import sqlite3
-import random
+import sqlite3, hashlib, random
 from datetime import datetime, timedelta
 
 
@@ -18,10 +17,30 @@ def random_timestamp(init_time):
 
 def initialize_patients(cursor):
     patient_commands = [
-        ("sad_patient", "sad", random_timestamp(init_time=True), 0),
-        ("happy_patient", "happy", random_timestamp(init_time=True), 0),
-        ("stressed_patient", "stressed", random_timestamp(init_time=True), 0),
-        ("sleepy_patient", "sleepy", random_timestamp(init_time=True), 0),
+        (
+            "sad_patient",
+            hashlib.sha256("sad".encode()).hexdigest(),
+            random_timestamp(init_time=True),
+            0,
+        ),
+        (
+            "happy_patient",
+            hashlib.sha256("happy".encode()).hexdigest(),
+            random_timestamp(init_time=True),
+            0,
+        ),
+        (
+            "stressed_patient",
+            hashlib.sha256("stressed".encode()).hexdigest(),
+            random_timestamp(init_time=True),
+            0,
+        ),
+        (
+            "sleepy_patient",
+            hashlib.sha256("sleepy".encode()).hexdigest(),
+            random_timestamp(init_time=True),
+            0,
+        ),
     ]
     cursor.executemany(
         "INSERT INTO Users (username, user_password, last_login, user_type) VALUES (?, ?, ?, ?);",
@@ -31,10 +50,30 @@ def initialize_patients(cursor):
 
 def initialize_doctors(cursor):
     doctor_commands = [
-        ("sad_doctor", "sad", random_timestamp(init_time=True), 1),
-        ("happy_doctor", "happy", random_timestamp(init_time=True), 1),
-        ("stressed_doctor", "stressed", random_timestamp(init_time=True), 1),
-        ("sleepy_doctor", "sleepy", random_timestamp(init_time=True), 1),
+        (
+            "sad_doctor",
+            hashlib.sha256("sad".encode()).hexdigest(),
+            random_timestamp(init_time=True),
+            1,
+        ),
+        (
+            "happy_doctor",
+            hashlib.sha256("happy".encode()).hexdigest(),
+            random_timestamp(init_time=True),
+            1,
+        ),
+        (
+            "stressed_doctor",
+            hashlib.sha256("stressed".encode()).hexdigest(),
+            random_timestamp(init_time=True),
+            1,
+        ),
+        (
+            "sleepy_doctor",
+            hashlib.sha256("sleepy".encode()).hexdigest(),
+            random_timestamp(init_time=True),
+            1,
+        ),
     ]
     cursor.executemany(
         "INSERT INTO Users (username, user_password, last_login, user_type) VALUES (?, ?, ?, ?);",

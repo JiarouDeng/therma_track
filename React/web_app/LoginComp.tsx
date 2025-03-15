@@ -18,51 +18,63 @@ function LoginComp({
   const [name, setName] = useState("");
   const [aux, setAux] = useState("");
   const [error, setError] = useState("");
+  const [tries, setTries] = useState(0);
 
   return (
     <div>
-      {nameClass && (
-        <div className="spaced">
-          <label>{nameClass}: </label>
-          <input value={name} onChange={(e) => setName(e.target.value)} />
+      {tries >= 5 && (
+        <div>
+          <p>Too many tries, please try again later</p>
         </div>
       )}
-      {auxClass && (
-        <div className="spaced">
-          <label>{auxClass}: </label>
-          <input
-            type={auxClass === "password" ? "password" : ""}
-            value={aux}
-            onChange={(e) => {
-              setAux(e.target.value);
+      {tries < 5 && (
+        <div>
+          {nameClass && (
+            <div className="spaced">
+              <label>{nameClass}: </label>
+              <input value={name} onChange={(e) => setName(e.target.value)} />
+            </div>
+          )}
+          {auxClass && (
+            <div className="spaced">
+              <label>{auxClass}: </label>
+              <input
+                type={auxClass === "password" ? "password" : ""}
+                value={aux}
+                onChange={(e) => {
+                  setAux(e.target.value);
+                }}
+              />
+            </div>
+          )}
+          {error && (
+            <p
+              className="spaced"
+              style={{
+                color: "red",
+              }}
+            >
+              {error}
+            </p>
+          )}
+          <button
+            className="spaced"
+            onClick={async () => {
+              if ((!nameClass && !name) || (!auxClass && !aux)) {
+                setError("Incomplete information");
+                return;
+              }
+              const [result, errorMsg] = await onAuxChecker(name, aux);
+              if (!result) {
+                setError(errorMsg);
+                setTries(tries + 1);
+              } else onLoginSubmit(errorMsg);
             }}
-          />
+          >
+            {buttonText}
+          </button>
         </div>
       )}
-      {error && (
-        <p
-          className="spaced"
-          style={{
-            color: "red",
-          }}
-        >
-          {error}
-        </p>
-      )}
-      <button
-        className="spaced"
-        onClick={async () => {
-          if ((!nameClass && !name) || (!auxClass && !aux)) {
-            setError("Incomplete information");
-            return;
-          }
-          const [result, errorMsg] = await onAuxChecker(name, aux);
-          if (!result) setError(errorMsg);
-          else onLoginSubmit(errorMsg);
-        }}
-      >
-        {buttonText}
-      </button>
     </div>
   );
 }

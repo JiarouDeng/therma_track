@@ -1,4 +1,4 @@
-import sqlite3
+import sqlite3, hashlib
 from flask import Blueprint, request, jsonify
 
 router = Blueprint("router", __name__)
@@ -18,7 +18,14 @@ def temperature(patient_id):
         connection.close()
         return jsonify(data)
     except sqlite3.Error:
-        return jsonify({"message": "Database error"}), 500
+        return (
+            jsonify(
+                {
+                    "message": "Unable to find the corresponding data at the time. Please try again later"
+                }
+            ),
+            500,
+        )
 
 
 @router.route("/login", methods=["POST"])
@@ -26,9 +33,6 @@ def login_patient():
     data = request.get_json()
     username = data.get("username", "").strip()
     password = data.get("password", "").strip()
-
-    if not username or not password:
-        return jsonify({"message": "Username and password are required"}), 400
 
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
@@ -39,19 +43,17 @@ def login_patient():
         user = cursor.fetchone()
 
         # the data is passed in with format (username, user_id, user_password, timestamp, user_type)
-        if user is None or password != user[2]:  # Assuming user_password is at index 2
-            return jsonify({"message": "Invalid username or password"}), 401
+        if user is None or hashlib.sha256(password.encode()).hexdigest() != user[2]:
+            return jsonify({"message": "Invalid username or password"}), 200
 
         # Update last login timestamp
         cursor.execute(
             "UPDATE Users SET last_login = CURRENT_TIMESTAMP WHERE user_id = ?",
             (user[0],),
-        )  # Assuming patient_id is at index 0
+        )
         connection.commit()
 
-        return jsonify(
-            {"message": None, "id": user[1], "user_type": user[4]}
-        )  # Returning patient_id
+        return jsonify({"message": None, "id": user[1], "user_type": user[4]}), 200
     except sqlite3.Error:
         return jsonify({"message": "Database error"}), 500
     finally:
@@ -92,7 +94,25 @@ def doctor_add_patient():
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
+    # need to first check if the attempted connect is a patient
     try:
+        cursor.execute(
+            "SELECT * FROM Users WHERE user_id = ? AND user_type = 0",
+            (patient_id,),
+        )
+        p_data = cursor.fetchone()
+        if p_data is None:
+            return jsonify({"message": "Invalid patient ID"}), 200
+
+        cursor.execute(
+            "SELECT * FROM DoctorPatients WHERE doctor_id = ? AND patient_id = ?",
+            (doctor_id, patient_id),
+        )
+
+        connect_data = cursor.fetchone()
+        if connect_data is not None:
+            return jsonify({"message": "Patient already connected"}), 200
+
         cursor.execute(
             "INSERT INTO DoctorPatients (doctor_id, patient_id) VALUES (?, ?)",
             (doctor_id, patient_id),
