@@ -25,8 +25,14 @@ android app:
 
 node.js backend
 
-1. cd node_sever
+1. cd node-sever
 2. npm init
 3. add in package.json "scripts" session: "start": "node index.js"
 4. npm install body-parser cors express sqlite3
 5. npm start
+
+flask backend
+
+1. cd flask-server
+2. python init_db.py --> initialize the database with default values
+3. python app.py --> start the server
