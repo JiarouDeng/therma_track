@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_BASE_URL } from "./config_constants";
 
 const handleLogin = async (
   username: string,
@@ -6,22 +7,18 @@ const handleLogin = async (
 ): Promise<[boolean, string]> => {
   let response;
   try {
-    if (username === "doctor")
-      response = await axios.post("http://127.0.0.1:4000/login/doctor", {
-        username,
-        password,
-      });
-    else
-      response = await axios.post("http://127.0.0.1:4000/login/patient", {
-        username,
-        password,
-      });
+    response = await axios.post(`${API_BASE_URL}/login`, {
+      username,
+      password,
+    });
 
-    // 根据响应结果导航到不同页面
+    console.log(response.data);
+
     if (response.data.message === null) {
       return [
         true,
-        (username === "doctor" ? "doctor/" : "patient/p/") + response.data.id,
+        (response.data.user_type === 1 ? "doctor/" : "patient/p/") +
+          response.data.id,
       ];
     } else return [false, "Login failed: " + response.data.message];
   } catch (error) {
@@ -37,19 +34,21 @@ const handleSignup = async (
   let response;
   try {
     if (username === "doctor")
-      response = await axios.post("http://127.0.0.1:4000/signup/doctor", {
+      response = await axios.post(`${API_BASE_URL}/signup/doctor`, {
         username,
         password,
       });
     else
-      response = await axios.post("http://127.0.0.1:4000/signup/patient", {
+      response = await axios.post(`${API_BASE_URL}/signup/patient`, {
         username,
         password,
       });
+    console.log(response.data);
     if (response.data.message === null) {
       return [
         true,
-        (username === "doctor" ? "doctor/" : "patient/p/") + response.data.id,
+        (response.data.user_type === 1 ? "doctor/" : "patient/p/") +
+          response.data.id,
       ];
     } else return [false, "Signup failed: " + response.data.message];
   } catch (error) {
@@ -64,10 +63,10 @@ const parseConnectPatient = async (
 ): Promise<[boolean, string]> => {
   // Check for valid month, day, year
 
-  const response = await axios.post(
-    "http://localhost:4000/doctor/connect_patient/",
-    { doctor_id, patient_id }
-  );
+  const response = await axios.post(`${API_BASE_URL}/doctor/connect_patient`, {
+    doctor_id,
+    patient_id,
+  });
   return response.data.message === null
     ? [true, ""]
     : [false, response.data.message];

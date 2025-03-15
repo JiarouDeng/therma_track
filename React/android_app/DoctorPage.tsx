@@ -12,6 +12,7 @@ import PopupComp from "./PopupComp";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import CustomButton from "./CustomButton";
 import axios from "axios";
+import { API_BASE_URL } from "./config_constants";
 
 function DoctorPage() {
   const route = useRoute();
@@ -27,7 +28,7 @@ function DoctorPage() {
 
   const updatePatientList = () => {
     axios
-      .get(`http://192.168.1.11:4000/doctor/check_patient/${id}`)
+      .get(`${API_BASE_URL}/doctor/check_patient/${id}`)
       .then((res) => {
         setPatients(res.data);
       })
@@ -36,7 +37,7 @@ function DoctorPage() {
 
   useEffect(() => {
     updatePatientList();
-  });
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -97,7 +98,9 @@ function DoctorPage() {
         <PopupComp onClose={() => setCheckPatient(false)}>
           <FlatList
             data={patients}
-            keyExtractor={(item: { patient_id: string }) => item.patient_id}
+            keyExtractor={(item: { patient_id: string; username: string }) =>
+              item.patient_id
+            }
             renderItem={({ item }) => (
               //<View >
               <TouchableOpacity
@@ -111,7 +114,7 @@ function DoctorPage() {
                   });
                 }}
               >
-                <Text style={styles.patientName}>{item.patient_id}</Text>
+                <Text style={styles.patientName}>{item.username}</Text>
               </TouchableOpacity>
             )}
           />

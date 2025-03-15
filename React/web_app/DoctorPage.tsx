@@ -3,6 +3,7 @@ import utilsFuncs from "./utils";
 import PopupComp from "./PopupComp";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { API_BASE_URL } from "./config_constants";
 
 function DoctorPage() {
   const { id } = useParams();
@@ -17,7 +18,7 @@ function DoctorPage() {
 
   const updatePatientList = () => {
     axios
-      .get(`http://localhost:4000/doctor/check_patient/${id}`)
+      .get(`${API_BASE_URL}/doctor/check_patient/${id}`)
       .then((res) => {
         setPatients(res.data);
       })
@@ -26,7 +27,7 @@ function DoctorPage() {
 
   useEffect(() => {
     updatePatientList();
-  });
+  }, []);
 
   return (
     <div
@@ -100,21 +101,23 @@ function DoctorPage() {
           onClose={() => setCheckPatient(false)}
           children={
             <ul className="space-y-2">
-              {patients.map((patient: { patient_id: number }) => (
-                <li
-                  key={patient.patient_id}
-                  className="p-3 border rounded-lg bg-gray-100"
-                >
-                  <button
-                    className="font-semibold"
-                    onClick={() => {
-                      navigate(`/patient/d${id}/${patient.patient_id}`);
-                    }}
+              {patients.map(
+                (patient: { patient_id: number; username: string }) => (
+                  <li
+                    key={patient.patient_id}
+                    className="p-3 border rounded-lg bg-gray-100"
                   >
-                    patient {patient.patient_id}
-                  </button>
-                </li>
-              ))}
+                    <button
+                      className="font-semibold"
+                      onClick={() => {
+                        navigate(`/patient/d${id}/${patient.patient_id}`);
+                      }}
+                    >
+                      {patient.username}
+                    </button>
+                  </li>
+                )
+              )}
             </ul>
           }
         />

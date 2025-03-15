@@ -2,6 +2,8 @@ import LoginComp from "./LoginComp";
 import { useNavigate } from "react-router-dom";
 import utilsFuncs from "./utils";
 
+const allow_signup = false;
+
 function LoginPage() {
   const navigate = useNavigate();
 
@@ -19,19 +21,21 @@ function LoginPage() {
         }}
         onAuxChecker={utilsFuncs.handleLogin}
       />
-      <p
-        className="spaced"
-        style={{
-          textDecoration: "underline",
-          textDecorationColor: "blue",
-          cursor: "pointer",
-        }}
-        onClick={() => {
-          navigate("/signup");
-        }}
-      >
-        Don't have an account? Sign up here!
-      </p>
+      {allow_signup && (
+        <p
+          className="spaced"
+          style={{
+            textDecoration: "underline",
+            textDecorationColor: "blue",
+            cursor: "pointer",
+          }}
+          onClick={() => {
+            navigate("/signup");
+          }}
+        >
+          Don't have an account? Sign up here!
+        </p>
+      )}
     </div>
   );
 }
