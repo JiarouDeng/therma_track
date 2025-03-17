@@ -1,22 +1,22 @@
-import * as React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import LoginPage from "./LoginPage"; // your component
-import SignupPage from "./SignupPage"; // your component
-import DoctorPage from "./DoctorPage";
-import PatientPage from "./PatientPage";
+import React from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import LoginPage from './LoginPage';
+import PatientPage from './PatientPage';
+import DoctorPage from './DoctorPage';
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
-export default function App() {
+function App(): React.JSX.Element {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator>
         <Stack.Screen name="Login" component={LoginPage} />
-        <Stack.Screen name="SignUp" component={SignupPage} />
         <Stack.Screen name="Patient" component={PatientPage} />
         <Stack.Screen name="Doctor" component={DoctorPage} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
+
+export default App;

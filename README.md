@@ -13,7 +13,7 @@ web app:
 7. npm install react-router-dom recharts axios date-fns (router is used for navigating between different pages, recharts is used for char display)
 8. npm run dev
 
-android app:
+android app (Expo):
 
 1. npx create-expo-app [app name] --template blank-typescript
 2. cd [app name]
@@ -22,6 +22,10 @@ android app:
 5. npm install react-native-screens react-native-safe-area-context
 6. **IMPORTANT** Before starting, use "ipconfig" command to check the laptop networks's currently assigned ip address and change all data query to that. Otherwise the Expo Go app would not be able to fetch the data!!
 7. npx expo start
+
+android app (Pure React Native, uses Android Studio Emulator)
+
+1. npx @react-native-community/cli@latest init <app_name>
 
 node.js backend
 

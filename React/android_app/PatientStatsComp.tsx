@@ -1,81 +1,72 @@
-import React from "react";
-import { View, Text, Dimensions } from "react-native";
-import { LineChart } from "react-native-chart-kit";
-import axios from "axios";
-import { useEffect, useState } from "react";
+import React from 'react';
+import {View, Text, StyleSheet} from 'react-native';
+import {useState, useEffect} from 'react';
+import {API_BASE_URL} from './config_constants';
 
 interface Props {
-  patient_id: string;
+  patient_id: number;
 }
 
-function PatientStatsComp({ patient_id }: Props) {
+function PatientStatsComp({patient_id}: Props) {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    axios
-      .get(`http://192.168.1.11:4000/temperature/${patient_id}`)
-      .then((res) => {
-        const formatted_data = res.data.map(
-          (entry: { timestamp: Date; temp_data: number }) => ({
-            timestamp: entry.timestamp,
-            // format(new Date(entry.timestamp), "yyyy-MM-dd HH:mm:ss"),
-            temp_data: entry.temp_data,
-          })
-        );
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/temperature/${patient_id}`);
+        const json_data: [string, number][] = await res.json();
+
+        const formatted_data = json_data
+          .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
+          .map(entry => ({
+            time_logged: new Date(entry[0]),
+            temp_data: entry[1],
+          }));
+
         console.log(formatted_data);
         setData(formatted_data);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchData();
   }, [patient_id]);
 
-  const chartData = {
-    labels: data.map(
-      (item: { timestamp: Date; temp_data: string }) => item.timestamp
-    ),
-    datasets: [
-      {
-        data: data.map((item: { timestamp: Date; temp_data: string }) =>
-          Number(item.temp_data)
-        ),
-        strokeWidth: 2,
-        color: (opacity = 1) => `rgba(255, 115, 0, ${opacity})`, // line color
-      },
-    ],
-  };
+  const temp_datas = data.map(
+    (entry: {time_logged: Date; temp_data: number}) => entry.temp_data,
+  );
+
+  // Ensure there is valid data
+  const min_temp: number = temp_datas.length ? Math.min(...temp_datas) - 1 : 30;
+  const max_temp: number = temp_datas.length ? Math.max(...temp_datas) + 1 : 45;
 
   return (
-    <View style={{ padding: 20 }}>
-      <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>
+    <View style={styles.container}>
+      <Text style={styles.titleText}>
         {data.length === 0
-          ? "No data stored currently. Waiting for more data"
-          : "Patient Temperature Over Time"}
+          ? `No data stored currently. Waiting for more data on patient ${patient_id}`
+          : 'Patient Temperature Over Time'}
       </Text>
-      {data.length > 0 && (
-        <LineChart
-          data={chartData}
-          width={Dimensions.get("window").width - 40} // chart width
-          height={300}
-          chartConfig={{
-            backgroundColor: "#fff",
-            backgroundGradientFrom: "#f7f7f7",
-            backgroundGradientTo: "#fff",
-            decimalPlaces: 1,
-            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            style: {
-              borderRadius: 16,
-            },
-            propsForDots: {
-              r: "4",
-              strokeWidth: "2",
-              stroke: "#ff7300",
-            },
-          }}
-          bezier
-        />
-      )}
+      {data.map((entry: {time_logged: Date; temp_data: number}, index) => (
+        <Text key={index}>
+          {entry.time_logged.toLocaleString()}: {entry.temp_data}
+        </Text>
+      ))}
+      <Text> minimum temperature: {min_temp}</Text>
+      <Text> maximum temperature: {max_temp}</Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+  },
+  titleText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+});
 
 export default PatientStatsComp;

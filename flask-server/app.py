@@ -12,4 +12,4 @@ import routes  # Assuming your routes are in a separate file named `your_routes.
 # Start the server on port 4000
 if __name__ == "__main__":
     app.register_blueprint(routes.router)
-    app.run(port=4000, debug=True)
+    app.run(host="0.0.0.0", port=4000, debug=True)
