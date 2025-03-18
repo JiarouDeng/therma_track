@@ -40,9 +40,11 @@ const handleLogin = async (
 const parseConnectPatient = async (
   doctor_id: string,
   patient_id: string,
+  dob: string,
 ): Promise<[boolean, string]> => {
   // Check for valid month, day, year
   try {
+    const [year, month, day] = dob.split('-');
     const response = await fetch(`${API_BASE_URL}/doctor/connect_patient`, {
       method: 'POST',
       headers: {
@@ -52,6 +54,9 @@ const parseConnectPatient = async (
       body: JSON.stringify({
         doctor_id: doctor_id,
         patient_id: patient_id,
+        year: parseInt(year, 10),
+        month: parseInt(month, 10),
+        day: parseInt(day, 10),
       }),
     });
     const json_data: {message: any} = await response.json();

@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS Users (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_password TEXT NOT NULL,
     last_login TIMESTAMP NOT NULL,
+    dob TIMESTAMP NOT NULL,
     user_type INTEGER NOT NULL  -- 0 means patient, 1 means doctor
 );
 

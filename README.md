@@ -10,7 +10,7 @@ web app:
 4. cd [app name]
 5. npm install
 6. cp [dir for React/web_app/*] src/
-7. npm install react-router-dom recharts axios date-fns (router is used for navigating between different pages, recharts is used for char display)
+7. npm install react-router-dom recharts (router is used for navigating between different pages, recharts is used for char display)
 8. npm run dev
 
 android app (Expo):
@@ -20,12 +20,21 @@ android app (Expo):
 3. cp [dir for React/android_app/*] .
 4. npm install react-native-chart-kit axios @react-navigation/stack @react-navigation/native
 5. npm install react-native-screens react-native-safe-area-context
-6. **IMPORTANT** Before starting, use "ipconfig" command to check the laptop networks's currently assigned ip address and change all data query to that. Otherwise the Expo Go app would not be able to fetch the data!!
+6. **IMPORTANT** Before starting, use "ipconfig" command to check the laptop networks's currently assigned ip address and change the API_BASE_URL in config_constants.ts. Otherwise the Expo Go app would not be able to fetch the data!!
 7. npx expo start
 
 android app (Pure React Native, uses Android Studio Emulator)
 
 1. npx @react-native-community/cli@latest init <app_name>
+2. cd <app_name>
+3. npm install @react-navigation/native @react-navigation/native-stack (for navigation)
+4. npm install react-native-screens react-native-safe-area-context (dependencies for navigation)
+5. npm install react-native-chart-kit (for patient temperature data visualization)
+6. npm install react-native-svg (dependencies for char kit)
+7. cp [dir for React/android_app/*] .
+8. **IMPORTANT** Before starting, use "ipconfig" command to check the laptop networks's currently assigned ip address and change the API_BASE_URL in config_constants.ts. Otherwise the Expo Go app would not be able to fetch the data!!
+9. open Android Studio VM device
+10. npm run android
 
 node.js backend
 

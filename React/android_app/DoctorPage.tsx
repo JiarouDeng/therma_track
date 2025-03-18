@@ -16,6 +16,7 @@ function DoctorPage({navigation, route}) {
   const [connectPatient, setConnectPatient] = useState(false);
   const [checkPatient, setCheckPatient] = useState(false);
   const [patientId, setPatientId] = useState('');
+  const [dob, setDob] = useState('');
   const [patients, setPatients] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [message, setMessage] = useState('');
@@ -34,7 +35,7 @@ function DoctorPage({navigation, route}) {
 
   useEffect(() => {
     updatePatientList();
-  }, [route.params.id]);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -70,6 +71,14 @@ function DoctorPage({navigation, route}) {
                 onChangeText={setPatientId}
               />
             </View>
+            <View style={styles.inputContainer}>
+              <Text>dob: </Text>
+              <TextInput
+                style={styles.input}
+                value={dob}
+                onChangeText={setDob}
+              />
+            </View>
             {errorMsg && <Text style={styles.errorText}>{errorMsg}</Text>}
             {message && <Text style={styles.messageText}>{message}</Text>}
             <CustomButton
@@ -78,6 +87,7 @@ function DoctorPage({navigation, route}) {
                 const [success, msg] = await Utils.parseConnectPatient(
                   route.params.id.toString(),
                   patientId,
+                  dob,
                 );
                 if (success) {
                   setMessage(`Patient ${patientId} connected successfully`);

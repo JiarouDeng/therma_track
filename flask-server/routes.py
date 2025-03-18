@@ -42,7 +42,7 @@ def login_patient():
         cursor.execute("SELECT * FROM Users WHERE username = ?", (username,))
         user = cursor.fetchone()
 
-        # the data is passed in with format (username, user_id, user_password, timestamp, user_type)
+        # the data is passed in with format (username, user_id, user_password, last_login, dob, user_type)
         if user is None or hashlib.sha256(password.encode()).hexdigest() != user[2]:
             return jsonify({"message": "Invalid username or password"}), 200
 
@@ -53,7 +53,7 @@ def login_patient():
         )
         connection.commit()
 
-        return jsonify({"message": None, "id": user[1], "user_type": user[4]}), 200
+        return jsonify({"message": None, "id": user[1], "user_type": user[5]}), 200
     except sqlite3.Error:
         return jsonify({"message": "Database error"}), 500
     finally:
@@ -90,6 +90,10 @@ def doctor_add_patient():
     data = request.get_json()
     doctor_id = data.get("doctor_id", None)
     patient_id = data.get("patient_id", None)
+    year = data.get("year", None)
+    month = data.get("month", None)
+    day = data.get("day", None)
+    print(f"{year}-{month}-{day}")
 
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
@@ -101,8 +105,22 @@ def doctor_add_patient():
             (patient_id,),
         )
         p_data = cursor.fetchone()
+        print(p_data)
         if p_data is None:
             return jsonify({"message": "Invalid patient ID"}), 200
+        dob_data = p_data[4].split()[0]
+        dob_arr = dob_data.split("-")
+        expected_year, expected_month, expected_day = (
+            int(dob_arr[0]),
+            int(dob_arr[1]),
+            int(dob_arr[2]),
+        )
+        if (
+            (year != expected_year)
+            or (month != expected_month)
+            or (day != expected_day)
+        ):
+            return jsonify({"message": "Invalid patient information"}), 200
 
         cursor.execute(
             "SELECT * FROM DoctorPatients WHERE doctor_id = ? AND patient_id = ?",

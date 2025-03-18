@@ -10,6 +10,8 @@ interface Props {
 
 function PatientStatsComp({patient_id}: Props) {
   const [data, setData] = useState([]);
+  const [minDate, setMinDate] = useState('');
+  const [maxDate, setMaxDate] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,9 +25,15 @@ function PatientStatsComp({patient_id}: Props) {
             time_logged: new Date(entry[0]),
             temp_data: entry[1],
           }));
+        const recent_50_data = formatted_data.slice(-50);
 
-        console.log(formatted_data);
-        setData(formatted_data);
+        const dates = recent_50_data.map(
+          (d: {time_logged: Date}) => d.time_logged,
+        );
+        setMinDate(new Date(Math.min(...dates)).toISOString().split('T')[0]);
+        setMaxDate(new Date(Math.max(...dates)).toISOString().split('T')[0]);
+        console.log(recent_50_data);
+        setData(recent_50_data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -46,7 +54,7 @@ function PatientStatsComp({patient_id}: Props) {
       <Text style={styles.titleText}>
         {data.length === 0
           ? `No data stored currently. Waiting for more data on patient ${patient_id}`
-          : 'Patient Temperature Over Time'}
+          : `Patient Temperature Over Time: ${minDate} to ${maxDate}`}
       </Text>
       {data.length > 0 && (
         <LineChart
@@ -54,7 +62,12 @@ function PatientStatsComp({patient_id}: Props) {
           data={{
             labels: data.map(
               (item: {time_logged: Date; temp_data: number}, index: number) =>
-                index % 5 === 0 ? item.time_logged.toLocaleDateString() : '',
+                index % 10 === 0
+                  ? item.time_logged.toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })
+                  : '',
             ),
             datasets: [
               {
@@ -83,10 +96,9 @@ function PatientStatsComp({patient_id}: Props) {
               stroke: '#ff7300',
             },
           }}
+          bezier
         />
       )}
-      <Text> minimum temperature: {min_temp}</Text>
-      <Text> maximum temperature: {max_temp}</Text>
     </View>
   );
 }

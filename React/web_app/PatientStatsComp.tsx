@@ -7,9 +7,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
-import { format } from "date-fns";
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { API_BASE_URL } from "./config_constants";
 
 interface Props {
@@ -18,26 +16,39 @@ interface Props {
 
 function PatientStatsComp({ patient_id }: Props) {
   const [data, setData] = useState([]);
+  const [minDate, setMinDate] = useState("");
+  const [maxDate, setMaxDate] = useState("");
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/temperature/${patient_id}`)
-      .then((res) => {
-        console.log(res);
-        const formatted_data = res.data
+    const fetchData = async () => {
+      try {
+        const temp_data = await fetch(
+          `${API_BASE_URL}/temperature/${patient_id}`
+        );
+        const formatted_data = await temp_data.json();
+        const sorted_data = formatted_data
           .sort(
             (a: [string, number], b: [string, number]) =>
               new Date(a[0]).getTime() - new Date(b[0]).getTime()
           )
           .map((entry: [string, number]) => ({
-            time_logged: format(new Date(entry[0]), "yyyy-MM-dd HH:mm:ss"),
+            time_logged: new Date(entry[0]),
             temp_data: entry[1],
           }));
+        const recent_50_data = sorted_data.slice(-50);
+        const dates = recent_50_data.map(
+          (d: { time_logged: Date }) => d.time_logged
+        );
+        setMinDate(new Date(Math.min(...dates)).toISOString().split("T")[0]);
+        setMaxDate(new Date(Math.max(...dates)).toISOString().split("T")[0]);
 
-        console.log(formatted_data);
-        setData(formatted_data);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
+        setData(recent_50_data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
   }, [patient_id]);
 
   const temp_datas = data.map(
@@ -53,13 +64,23 @@ function PatientStatsComp({ patient_id }: Props) {
       <h2>
         {data.length === 0
           ? "No data stored currently. Waiting for more data"
-          : "Patient Temperature Over Time"}
+          : `Patient Temperature Over Time: ${minDate} to ${maxDate}`}
       </h2>
       {data.length > 0 && (
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="time_logged" />
+            <XAxis
+              dataKey="time_logged"
+              tickFormatter={(value) =>
+                value.toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              }
+              tick={{ fontSize: 12 }}
+              interval={10}
+            />
             <YAxis
               domain={[min_temp, max_temp]}
               label={{ value: "°C", angle: -90, position: "insideLeft" }}
