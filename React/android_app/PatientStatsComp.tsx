@@ -17,13 +17,20 @@ function PatientStatsComp({patient_id}: Props) {
     const fetchData = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/temperature/${patient_id}`);
-        const json_data: [string, number][] = await res.json();
+        const json_data: {timestamp: string; temperature: number}[] =
+          await res.json();
 
         const formatted_data = json_data
-          .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
-          .map(entry => ({
-            time_logged: new Date(entry[0]),
-            temp_data: entry[1],
+          .sort(
+            (
+              a: {timestamp: string; temperature: number},
+              b: {timestamp: string; temperature: number},
+            ) =>
+              new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+          )
+          .map((entry: {timestamp: string; temperature: number}) => ({
+            time_logged: new Date(entry.timestamp),
+            temp_data: entry.temperature,
           }));
         const recent_50_data = formatted_data.slice(-50);
 
@@ -41,13 +48,13 @@ function PatientStatsComp({patient_id}: Props) {
     fetchData();
   }, [patient_id]);
 
-  const temp_datas = data.map(
-    (entry: {time_logged: Date; temp_data: number}) => entry.temp_data,
-  );
+  ////const temp_datas = data.map(
+  // (entry: {time_logged: Date; temp_data: number}) => entry.temp_data,
+  //);
 
   // Ensure there is valid data
-  const min_temp: number = temp_datas.length ? Math.min(...temp_datas) - 1 : 30;
-  const max_temp: number = temp_datas.length ? Math.max(...temp_datas) + 1 : 45;
+  //const min_temp: number = temp_datas.length ? Math.min(...temp_datas) - 1 : 30;
+  //const max_temp: number = temp_datas.length ? Math.max(...temp_datas) + 1 : 45;
 
   return (
     <View style={styles.container}>

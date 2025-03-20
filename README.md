@@ -49,3 +49,8 @@ flask backend
 1. cd flask-server
 2. python init_db.py --> initialize the database with default values
 3. python app.py --> start the server
+
+flask cloud backend
+
+1. cd flask-cloud-server
+2. python app.py
